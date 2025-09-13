@@ -195,7 +195,7 @@
 
   <main class="container">
     <section class="card" id="registrationCard">
-      <h1>Register for the Event</h1>
+      <h1>ISM Conference Registration</h1>
       <form id="registrationForm" class="form-grid" autocomplete="off">
         <div class="form-field">
           <label for="name">Name</label>
@@ -636,6 +636,7 @@ function drawStrokedText(ctx, text, x, y) {
         ticketSection.classList.remove('hidden');
         document.getElementById('downloadTicket').onclick = () => downloadCanvas(document.getElementById('ticketCanvas'), `ticket_${name.replace(/\s+/g, '_')}.png`);
         document.getElementById('shareTicket').onclick = () => shareCanvas(document.getElementById('ticketCanvas'), `ticket_${name.replace(/\s+/g, '_')}.png`);
+        registrationForm.style.display = 'none'; // hides it
         window.scrollTo({ top: ticketSection.offsetTop - 10, behavior: 'smooth' });
       });
 
