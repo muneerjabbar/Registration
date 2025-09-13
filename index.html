@@ -399,9 +399,9 @@ async function generateTicket({ name, unit }) {
   ctx.textAlign = 'left';
 
   // percentages measured from original image
-  const nameXPercent = 0.10; // 15% of width
+  const nameXPercent = 0.08; // 15% of width
   const nameYPercent = 0.23; // 23% of height
-  const unitXPercent = 0.10;
+  const unitXPercent = 0.08;
   const unitYPercent = 0.67;
 
   // font sizes also relative to width
@@ -411,7 +411,7 @@ async function generateTicket({ name, unit }) {
     canvas.height * nameYPercent
   );
 
-  ctx.font = `${canvas.width * 0.010}px Segoe UI, Arial, sans-serif`;
+  ctx.font = `${canvas.width * 0.017}px Segoe UI, Arial, sans-serif`;
   drawStrokedText(ctx, unit,
     canvas.width * unitXPercent,
     canvas.height * unitYPercent
