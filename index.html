@@ -657,6 +657,8 @@ function drawStrokedText(ctx, text, x, y) {
           sessionStorage.setItem('loggedIn', 'true');
           loginModal.close();
           dashboardCard.classList.remove('hidden');
+          registrationForm.style.display = 'none'; // hides it
+          ticketSection.style.display = 'none'; // hides it
           // init filters and table
           const zoneF = document.getElementById('filterZone');
           const unitF = document.getElementById('filterUnit');
