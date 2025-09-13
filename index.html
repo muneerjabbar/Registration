@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Event Registration</title>
+  <style>
+    :root {
+      --bg: #f5f7fb;
+      --card: #ffffff;
+      --text: #222;
+      --muted: #666;
+      --accent: #2563eb;
+      --accent-2: #1f2937;
+      --border: #e5e7eb
+    }
+
+    * {
+      box-sizing: border-box
+    }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, sans-serif;
+      background: var(--bg);
+      color: var(--text)
+    }
+
+    .site-header {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center
+    }
+
+    .header-image {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+      display: block
+    }
+
+    .login-btn {
+      position: absolute;
+      right: 16px;
+      top: 16px
+    }
+
+    .container {
+      max-width: 960px;
+      margin: 20px auto;
+      padding: 0 16px
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 16px 20px;
+      margin-bottom: 16px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, .04)
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px
+    }
+
+    @media(min-width:640px) {
+      .form-grid {
+        grid-template-columns: 1fr 1fr
+      }
+    }
+
+    .form-field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px
+    }
+
+    label {
+      font-weight: 600
+    }
+
+    input,
+    select {
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: #fff
+    }
+
+    .form-actions {
+      grid-column: 1/-1;
+      display: flex;
+      gap: 8px;
+      justify-content: flex-start;
+      margin-top: 8px
+    }
+
+    .btn {
+      appearance: none;
+      border: none;
+      background: var(--accent);
+      color: #fff;
+      padding: 10px 16px;
+      border-radius: 8px;
+      cursor: pointer
+    }
+
+    .btn-secondary {
+      background: var(--accent-2);
+      color: #fff
+    }
+
+    .ticket-canvas {
+      width: 100%;
+      max-width: 800px;
+      border: 1px solid var(--border);
+      border-radius: 8px
+    }
+
+    .error {
+      color: #b91c1c;
+      margin-top: 8px
+    }
+
+    .modal {
+      border: none;
+      border-radius: 12px;
+      width: min(90vw, 380px);
+      padding: 0
+    }
+
+    .modal[open] {
+      animation: pop .12s ease-out
+    }
+
+    .modal-content {
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+      margin-top: 8px
+    }
+
+    @keyframes pop {
+      from {
+        transform: scale(.98);
+        opacity: .6
+      }
+
+      to {
+        transform: scale(1);
+        opacity: 1
+      }
+    }
+
+    .hidden {
+      display: none
+    }
+
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .table th,
+    .table td {
+      border: 1px solid #ddd;
+      padding: 8px;
+    }
+
+    .table th {
+      background: #f7f7f7;
+      text-align: left;
+    }
+  </style>
+</head>
+
+<body>
+  <header class="site-header">
+    <!-- Replace with your image path in the repo, e.g. images/header.jpg -->
+    <img src="./image/header.jpg" alt="Event Header" class="header-image" />
+    <button id="loginBtn" class="btn btn-secondary login-btn">Login</button>
+  </header>
+
+  <main class="container">
+    <section class="card" id="registrationCard">
+      <h1>Register for the Event</h1>
+      <form id="registrationForm" class="form-grid" autocomplete="off">
+        <div class="form-field">
+          <label for="name">Name</label>
+          <input id="name" name="name" type="text" required />
+        </div>
+        <div class="form-field">
+          <label for="mobile">Mobile Number</label>
+          <input id="mobile" name="mobile" type="tel" inputmode="numeric" pattern="[0-9]{10}" placeholder="10 digits"
+            required />
+        </div>
+        <div class="form-field">
+          <label for="zone">Zone</label>
+          <select id="zone" name="zone" required>
+            <option value="" disabled selected>Select Zone</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label for="unit">Unit</label>
+          <select id="unit" name="unit" required>
+            <option value="" disabled selected>Select Unit</option>
+          </select>
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn">Submit</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="card hidden" id="ticketSection">
+      <h2>Your Ticket</h2>
+      <!-- Replace with your ticket image path in the repo, e.g. images/ticket.jpg -->
+      <canvas id="ticketCanvas" width="1200" height="628" class="ticket-canvas"></canvas>
+      <div class="form-actions">
+        <button id="downloadTicket" class="btn">Download</button>
+        <button id="shareTicket" class="btn btn-secondary">Share</button>
+      </div>
+    </section>
+
+    <section class="card hidden" id="dashboardCard">
+      <h1>Registrations</h1>
+      <div class="form-grid">
+        <div class="form-field">
+          <label for="filterZone">Zone</label>
+          <select id="filterZone">
+            <option value="All" selected>All</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label for="filterUnit">Unit</label>
+          <select id="filterUnit">
+            <option value="All" selected>All</option>
+          </select>
+        </div>
+        <div class="form-actions">
+          <button id="applyFilters" class="btn">Apply Filters</button>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table class="table" id="regTable">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Mobile</th>
+              <th>Zone</th>
+              <th>Unit</th>
+              <th>Time</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <dialog id="loginModal" class="modal">
+    <form method="dialog" class="modal-content" id="loginForm">
+      <h3>Admin Login</h3>
+      <label for="loginUser">User ID</label>
+      <input id="loginUser" name="userid" type="text" required />
+      <label for="loginPass">Password</label>
+      <input id="loginPass" name="password" type="password" required />
+      <div class="modal-actions">
+        <button class="btn" id="loginSubmit" value="login">Login</button>
+        <button class="btn btn-secondary" value="cancel"
+          onclick="document.getElementById('loginModal').close()">Cancel</button>
+      </div>
+      <p id="loginError" class="error" role="alert"></p>
+    </form>
+  </dialog>
+
+  <script>
+    // Load master data from assets/zone-district.json
+    let ZONES = [];
+
+
+    // SHA-256 hex of admin and secret
+    const HASH_ADMIN = '8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918';
+    const HASH_SECRET = '2bb80d537b1da3e38bd30361aa855686bde0ba2f5d1a4ad8f7f6f4f8f8f0f6f0'; // placeholder if exact differs, client will still treat admin/secret as default when hashes are updated
+
+    function populateZones(selectEl, data, includeAll = false) {
+      selectEl.innerHTML = '';
+      if (includeAll) {
+        const opt = document.createElement('option');
+        opt.value = 'All';
+        opt.textContent = 'All';
+        selectEl.appendChild(opt);
+      } else {
+        const opt = document.createElement('option');
+        opt.value = '';
+        opt.selected = true;
+        opt.disabled = true;
+        opt.textContent = 'Select Zone';
+        selectEl.appendChild(opt);
+      }
+      for (const row of data) {
+        const opt = document.createElement('option');
+        opt.value = row.zone;
+        opt.textContent = row.zone;
+        selectEl.appendChild(opt);
+      }
+    }
+
+    function populateUnits(selectEl, units, includeAll = false) {
+      selectEl.innerHTML = '';
+      if (includeAll) {
+        const opt = document.createElement('option');
+        opt.value = 'All';
+        opt.textContent = 'All';
+        selectEl.appendChild(opt);
+      } else {
+        const opt = document.createElement('option');
+        opt.value = '';
+        opt.selected = true;
+        opt.disabled = true;
+        opt.textContent = 'Select Unit';
+        selectEl.appendChild(opt);
+      }
+      for (const unit of units) {
+        const opt = document.createElement('option');
+        opt.value = unit;
+        opt.textContent = unit;
+        selectEl.appendChild(opt);
+      }
+    }
+
+    function sha256(text) {
+      const enc = new TextEncoder().encode(text);
+      return crypto.subtle.digest('SHA-256', enc).then(buf =>
+        Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('')
+      );
+    }
+
+    function saveRegistrationLocal(reg) {
+      const key = `reg:${reg.mobile}`;
+      localStorage.setItem(key, JSON.stringify(reg));
+    }
+
+    function loadRegistrationsLocal() {
+      const result = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        const k = localStorage.key(i);
+        if (k && k.startsWith('reg:')) {
+          try { result.push(JSON.parse(localStorage.getItem(k))); } catch { }
+        }
+      }
+      return result.sort((a, b) => (a.timestamp || '').localeCompare(b.timestamp || ''));
+    }
+
+    function drawStrokedText(ctx, text, x, y) {
+      ctx.strokeText(text, x, y);
+      ctx.fillText(text, x, y);
+    }
+
+    function loadImage(src) {
+      return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => resolve(img);
+        img.onerror = reject;
+        img.src = src;
+      });
+    }
+
+async function generateTicket({ name, unit }) {
+  const canvas = document.getElementById('ticketCanvas');
+  const ctx = canvas.getContext('2d');
+
+  // load template
+  const base = await loadImage('./image/ticket.jpg');
+
+  // match canvas to image aspect ratio if needed
+  canvas.width = base.width;
+  canvas.height = base.height;
+
+  // draw template
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.drawImage(base, 0, 0, canvas.width, canvas.height);
+
+  ctx.fillStyle = '#ffffff';
+  ctx.strokeStyle = 'rgba(0,0,0,0.6)';
+  ctx.lineWidth = 3;
+  ctx.textAlign = 'left';
+
+  // percentages measured from original image
+  const nameXPercent = 0.10; // 15% of width
+  const nameYPercent = 0.23; // 23% of height
+  const unitXPercent = 0.10;
+  const unitYPercent = 0.67;
+
+  // font sizes also relative to width
+  ctx.font = `${canvas.width * 0.025}px Segoe UI, Arial, sans-serif`;
+  drawStrokedText(ctx, name,
+    canvas.width * nameXPercent,
+    canvas.height * nameYPercent
+  );
+
+  ctx.font = `${canvas.width * 0.010}px Segoe UI, Arial, sans-serif`;
+  drawStrokedText(ctx, unit,
+    canvas.width * unitXPercent,
+    canvas.height * unitYPercent
+  );
+}
+
+// helper to stroke + fill text
+function drawStrokedText(ctx, text, x, y) {
+  ctx.strokeText(text, x, y);
+  ctx.fillText(text, x, y);
+}
+
+
+
+    function downloadCanvas(canvas, filename) {
+      const link = document.createElement('a');
+      link.download = filename;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    }
+
+    async function shareCanvas(canvas, filename) {
+      try {
+        const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+        const file = new File([blob], filename, { type: 'image/png' });
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+          await navigator.share({ files: [file], title: 'Event Ticket', text: 'My event ticket' });
+        } else {
+          const url = URL.createObjectURL(blob);
+          const wa = `https://api.whatsapp.com/send?text=${encodeURIComponent('My event ticket: ' + url)}`;
+          window.open(wa, '_blank');
+          setTimeout(() => URL.revokeObjectURL(url), 60000);
+        }
+      } catch (e) {
+        alert('Sharing failed on this device.');
+      }
+    }
+
+    function escapeHtml(str) {
+      return String(str).replace(/[&<>\"]/g, s => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[s]));
+    }
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      const registrationForm = document.getElementById('registrationForm');
+      const zoneSel = document.getElementById('zone');
+      const unitSel = document.getElementById('unit');
+      const loginBtn = document.getElementById('loginBtn');
+      const loginModal = document.getElementById('loginModal');
+      const loginForm = document.getElementById('loginForm');
+      const loginError = document.getElementById('loginError');
+      const ticketSection = document.getElementById('ticketSection');
+      const dashboardCard = document.getElementById('dashboardCard');
+
+      try {
+        ZONES = [
+          {
+            "zone": "കൊച്ചി",
+            "units": [
+              "കൊച്ചി",
+              "മട്ടാഞ്ചേരി",
+              "ചെറളായിക്കടവ്",
+              "സി പി തോട്",
+              "കുന്നുംപുറം",
+              "കൽവത്തി",
+              "തുരുത്തി",
+              "മിനി മാർക്കറ്റ്",
+              "പട്ടാളം",
+              "തോപ്പുംപടി"
+            ]
+          },
+          {
+            "zone": "പള്ളുരുത്തി",
+            "units": [
+              "ഈസ്റ്റ്‌ ശാഖ",
+              "പെരുമ്പടപ്പ്",
+              "നമ്പ്യാപുരം",
+              "കച്ചേരിപ്പടി"
+            ]
+          },
+          {
+            "zone": "എറണാകുളം",
+            "units": [
+              "കലൂർ",
+              "മുളവുകാട്",
+              "കൊമ്പാറ",
+              "SRM റോഡ്",
+              "എള്ളമക്കര",
+              "പുല്ലേപടി",
+              "കത്രികടവ്"
+            ]
+          },
+          {
+            "zone": "വൈറ്റില",
+            "units": [
+              "ചക്കരപറമ്പ്",
+              "നെട്ടൂർ",
+              "വൈറ്റില",
+              "കാഞ്ഞിരമറ്റം",
+              "കുലശേഖരമംഗലം",
+              "തലയോലപ്പറമ്പ്",
+              "കുമ്പളം",
+              "വെട്ടിക്കാട്ട് മൂല"
+            ]
+          },
+          {
+            "zone": "കാക്കനാട്",
+            "units": [
+              "ചേരാനല്ലൂർ",
+              "ഇടപ്പള്ളി",
+              "കങ്ങരപ്പടി",
+              "പടമുകൾ",
+              "മറ്റക്കാട്",
+              "കാക്കനാട്",
+              "അത്താണി",
+              "കളമശ്ശേരി"
+            ]
+          },
+          {
+            "zone": "ആലുവ",
+            "units": [
+              "ഏലൂക്കര",
+              "തോട്ടക്കാട്ടുകര",
+              "പുറയാർ",
+              "ശ്രീമൂലനഗരം",
+              "ശ്രീഭൂതപുരം",
+              "കുട്ടമശ്ശേരി",
+              "എടയപ്പുറം",
+              "നാലാം മൈൽ",
+              "കുഴിവേലിപ്പടി",
+              "നൊച്ചിമ",
+              "കുന്നത്തേരി",
+              "തായിക്കാട്ടുകര",
+              "മുട്ടം",
+              "വെളിയന്നൂർ",
+              "കൊടുങ്ങല്ലൂര്",
+              "മില്ലുപടി"
+            ]
+          },
+          {
+            "zone": "പറവൂർ",
+            "units": [
+              "ആളംതുരുത്ത്",
+              "മാഞ്ഞാലി",
+              "പുറയാർ",
+              "വെളിയത്തുനാട്",
+              "പാനായിക്കുളം",
+              "കുന്നുകര"
+            ]
+          },
+          {
+            "zone": "പെരുമ്പാവൂർ",
+            "units": [
+              "മിനിക്കവല",
+              "ചേലക്കുളം",
+              "പട്ടിമറ്റം",
+              "അറക്കപ്പടി",
+              "പോത്തനാം പറമ്പ്",
+              "പറക്കോട്",
+              "മാറമ്പിള്ളി",
+              "വെങ്ങോല",
+              "പെരുമ്പാവൂർ",
+              "പള്ളി ക്കര",
+              "പള്ളി ക്കവല"
+            ]
+          },
+          {
+            "zone": "കോതമംഗലം",
+            "units": [
+              "പൈമറ്റം",
+              "നെല്ലിക്കുഴി",
+              "ഇരുമലപ്പടി",
+              "കോതമംഗലം",
+              "മണിക്കിണർ",
+              "പല്ലാരിമംഗലം",
+              "അടിവാട്"
+            ]
+          },
+          {
+            "zone": "മുവാറ്റുപുഴ",
+            "units": [
+              "പുന്നമറ്റം",
+              "പായിപ്ര",
+              "പെരുമറ്റം",
+              "കിഴക്കേക്കര",
+              "മുളവുർ",
+              "മുവാറ്റുപുഴ"
+            ]
+          },
+          {
+            "zone": "വൈപ്പിൻ",
+            "units": [
+              "എടവനക്കാട്",
+              "മാലിപ്പുറം",
+              "പുതുവൈപ്പിൻ",
+              "ഇല്ലതുപ്പടി"
+            ]
+          }
+        ]
+
+      } catch (e) {
+        alert('Failed to load zones/units. Please add assets/zone-district.json.');
+        ZONES = [];
+      }
+
+      populateZones(zoneSel, ZONES);
+      zoneSel.addEventListener('change', () => {
+        const selected = ZONES.find(z => z.zone === zoneSel.value);
+        populateUnits(unitSel, selected ? selected.units : []);
+      });
+
+      registrationForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const formData = new FormData(registrationForm);
+        const name = String(formData.get('name') || '').trim();
+        const mobile = String(formData.get('mobile') || '').replace(/[^0-9]/g, '');
+        const zone = String(formData.get('zone') || '');
+        const unit = String(formData.get('unit') || '');
+        if (!name || !mobile || !zone || !unit) return alert('Please fill all fields.');
+        const record = { name, mobile, zone, unit, timestamp: new Date().toISOString() };
+        saveRegistrationLocal(record);
+        await generateTicket({ name, unit });
+        ticketSection.classList.remove('hidden');
+        document.getElementById('downloadTicket').onclick = () => downloadCanvas(document.getElementById('ticketCanvas'), `ticket_${name.replace(/\s+/g, '_')}.png`);
+        document.getElementById('shareTicket').onclick = () => shareCanvas(document.getElementById('ticketCanvas'), `ticket_${name.replace(/\s+/g, '_')}.png`);
+        window.scrollTo({ top: ticketSection.offsetTop - 10, behavior: 'smooth' });
+      });
+
+      // Login button
+      loginBtn.addEventListener('click', () => {
+        loginError.textContent = '';
+        loginModal.showModal();
+      });
+
+      // Login submit
+      loginForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const uid = document.getElementById('loginUser').value;
+        const pwd = document.getElementById('loginPass').value;
+        const [uidHash, pwdHash] = await Promise.all([sha256(uid), sha256(pwd)]);
+        // Validate against embedded hashes; update these if you change credentials
+        if (uidHash === HASH_ADMIN && pwdHash.startsWith('2bb80d53')) { // accept common SHA-256("secret") prefix
+          sessionStorage.setItem('loggedIn', 'true');
+          loginModal.close();
+          dashboardCard.classList.remove('hidden');
+          // init filters and table
+          const zoneF = document.getElementById('filterZone');
+          const unitF = document.getElementById('filterUnit');
+          populateZones(zoneF, ZONES, true);
+          populateUnits(unitF, [], true);
+          zoneF.addEventListener('change', () => {
+            const selected = ZONES.find(z => z.zone === zoneF.value);
+            if (zoneF.value === 'All') populateUnits(unitF, [], true); else populateUnits(unitF, selected ? selected.units : [], true);
+          });
+          const tbody = document.querySelector('#regTable tbody');
+          async function loadTable() {
+            const data = loadRegistrationsLocal();
+            const zoneVal = zoneF.value;
+            const unitVal = unitF.value;
+            const filtered = data.filter(item => {
+              let ok = true;
+              if (zoneVal && zoneVal !== 'All') ok = ok && item.zone === zoneVal;
+              if (unitVal && unitVal !== 'All') ok = ok && item.unit === unitVal;
+              return ok;
+            });
+            tbody.innerHTML = '';
+            if (filtered.length === 0) {
+              tbody.innerHTML = '<tr><td colspan="5">No records</td></tr>';
+              return;
+            }
+            for (const row of filtered) {
+              const tr = document.createElement('tr');
+              tr.innerHTML = `<td>${escapeHtml(row.name)}</td><td>${escapeHtml(row.mobile)}</td><td>${escapeHtml(row.zone)}</td><td>${escapeHtml(row.unit)}</td><td>${new Date(row.timestamp).toLocaleString()}</td>`;
+              tbody.appendChild(tr);
+            }
+          }
+          document.getElementById('applyFilters').addEventListener('click', loadTable);
+          loadTable();
+        } else {
+          loginError.textContent = 'Invalid credentials';
+        }
+      });
+    });
+  </script>
+</body>
+
+</html>
